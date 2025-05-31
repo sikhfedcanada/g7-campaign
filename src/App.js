@@ -10,7 +10,7 @@ function NavBar({ darkMode, toggleDarkMode }) {
 
   return (
     <nav className={styles.navbar}>
-      <div className={styles.logo}>Ontario Gurdwaras</div>
+      <div className={styles.logo}>Sikh Federation (Canada)</div>
 
       {/* Desktop Links */}
       <div className={styles.navLinks}>
@@ -27,7 +27,7 @@ function NavBar({ darkMode, toggleDarkMode }) {
       {/* Hamburger (mobile only) */}
       <button
         className={styles.hamburger}
-        onClick={() => setMobileOpen(o => !o)}
+        onClick={() => setMobileOpen(open => !open)}
         aria-label="Menu"
       >
         {mobileOpen ? <X size={24} /> : <Menu size={24} />}
@@ -36,12 +36,60 @@ function NavBar({ darkMode, toggleDarkMode }) {
       {/* Mobile Menu */}
       {mobileOpen && (
         <div className={styles.mobileMenu}>
-          <Link to="/" className={styles.mobileItem} onClick={() => setMobileOpen(false)}>Home</Link>
-          <Link to="/about" className={styles.mobileItem} onClick={() => setMobileOpen(false)}>About</Link>
-          <Link to="/contact" className={styles.mobileItem} onClick={() => setMobileOpen(false)}>Contact</Link>
-          <button className={styles.mobileThemeToggle} onClick={toggleDarkMode} aria-label="Toggle theme">
-            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
+          {/* Top bar: Title and Close */}
+          <div className={styles.mobileHeader}>
+            <div className={styles.mobileLogo}>Sikh Federation (Canada)</div>
+            <button
+              className={styles.mobileClose}
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
+            >
+              <X size={24} />
+            </button>
+          </div>
+
+          {/* Divider between header and first link */}
+          <div className={styles.mobileDivider} />
+
+          {/* Menu Links with separators */}
+          <nav className={styles.mobileNavLinks}>
+            <Link to="/" className={styles.mobileItem} onClick={() => setMobileOpen(false)}>
+              Home
+            </Link>
+            <div className={styles.mobileDivider} />
+            <Link to="/about" className={styles.mobileItem} onClick={() => setMobileOpen(false)}>
+              About
+            </Link>
+            <div className={styles.mobileDivider} />
+            <Link to="/contact" className={styles.mobileItem} onClick={() => setMobileOpen(false)}>
+              Contact
+            </Link>
+            <div className={styles.mobileDivider} />
+          </nav>
+
+          {/* Footer: Email Now (left) and theme toggle (right) */}
+          <div className={styles.mobileFooter}>
+            <button
+              className={styles.mobileEmailButton}
+              onClick={() => {
+                const formSection = document.getElementById('emailForm');
+                if (formSection) {
+                  formSection.scrollIntoView({ behavior: 'smooth' });
+                }
+                setMobileOpen(false);
+              }}
+            >
+              Email Now
+            </button>
+
+            <button
+              className={styles.mobileThemeToggle}
+              onClick={toggleDarkMode}
+              aria-label="Toggle theme"
+            >
+              {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+          </div>
         </div>
       )}
     </nav>
@@ -50,26 +98,29 @@ function NavBar({ darkMode, toggleDarkMode }) {
 
 // ───────────────────────────────────────────────────── HomePage ─────────────────────────────────────────────────────
 function HomePage() {
-  // form state
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName]   = useState('');
-  const [email, setEmail]         = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [mpData, setMpData]       = useState(null);
-  const [emailBody, setEmailBody] = useState('');
-  const [showModal, setShowModal]         = useState(false);
+  const [firstName, setFirstName]     = useState('');
+  const [lastName, setLastName]       = useState('');
+  const [email, setEmail]             = useState('');
+  const [postalCode, setPostalCode]   = useState('');
+  const [mpData, setMpData]           = useState(null);
+  const [emailBody, setEmailBody]     = useState('');
+  const [showModal, setShowModal]     = useState(false);
   const [showThankYouModal, setShowThankYouModal] = useState(false);
 
-  // build default email
   const generateBody = mpName => (
     `Dear ${mpName},\n\n` +
-    `I am writing as a concerned constituent from ${postalCode} to strongly urge you to oppose any invitation to officials from the Government of India to the upcoming G7 Summit in Canada.\n\n` +
-    `The Ontario Gurdwaras Committee and many others have raised serious concerns regarding foreign interference, threats to Canadian sovereignty, and violence targeting Sikh Canadians, all of which remain unresolved. No invitation should be extended until there is full cooperation with Canadian criminal investigations and substantive reforms by the Government of India.\n\n` +
+    `I am writing as a concerned constituent from ${postalCode} about the reports that the Canadian ` +
+    `To speak of shared priorities with a regime that orchestrated the assassination of Shaheed Bhai Hardeep Singh Nijjar—and continues to threaten Sikh lives across Canada—is an affront our community and every community who believes in justice and basic human rights.\n\n` +
+    `We demand three immediate actions from the Government of Canada:\n\n` +
+    `1. Public affirm Canada’s commitment to holding India accountable for its crimes and interference on Canadian soil.\n\n` +
+    `2. Guarantee that no Indian officials will be invited to G7 events or any official Canadian forum until India cooperates fully with criminal investigations, ends its campaign of repression, and demonstrates clear reforms.\n\n` +
+    `3. Impose targeted sanctions on Indian officials—especially Home Affairs Minister Amit Shah—who are credibly implicated in orchestrating violence in Canada.\n\n` +
+    `I trust that you will recognize the gravity of this issues and take the right steps to ensure the safety and dignity of all communities in Canada.\n\n` +
     `Sincerely,\n${firstName} ${lastName}`
   );
 
-  // lookup MP
-  const findMP = async () => {
+  const findMP = async (event) => {
+    event.preventDefault();
     try {
       const res = await axios.get(
         `https://represent.opennorth.ca/postcodes/${encodeURIComponent(postalCode)}/`
@@ -80,15 +131,15 @@ function HomePage() {
       setEmailBody(generateBody(mp.name));
       setShowModal(true);
     } catch (err) {
-      alert(err.message);
+      alert(err.message || 'Error finding your MP—please check your postal code.');
     }
   };
 
-  // send email + log
   const sendEmail = () => {
     if (!mpData) return;
     const subject = 'Urgent Request: Do Not Invite Indian Delegation to G7 Summit';
-    const ccList  = ['info@ontariogurdwaras.com','Bill.Blair@parl.gc.ca','pm@pm.gc.ca'].join(',');
+    const ccList = ['info@ontariogurdwaras.com','bill.blair@parl.gc.ca','pm@pm.gc.ca','katharine.heus@pmo-cpm.gc.ca','shaili.patel@pmo-cpm.gc.ca','melanie.joly@parl.gc.ca','anita.anand@international.gc.ca'
+    ].join(',');
     const bodyEnc = encodeURIComponent(emailBody);
 
     window.open(
@@ -98,8 +149,18 @@ function HomePage() {
 
     fetch(
       'https://script.google.com/macros/s/AKfycbyehZjSH_tZQMrNKOqOrqtk2bOVgCyqbN5bJgepB7XgSTpr9MMhNUnLqSGEDmy8MIhauA/exec',
-      { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ firstName, lastName, email, postalCode, mpName: mpData.name, mpEmail: mpData.email })
+      {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          postalCode,
+          mpName: mpData.name,
+          mpEmail: mpData.email,
+        })
       }
     );
 
@@ -110,14 +171,23 @@ function HomePage() {
   };
 
   return (
-    <div className={styles.homeWrapper}>
+    <>
       {/* Hero Section */}
       <section className={styles.heroSection}>
-        <div className={styles.heroText}>
+        <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>Join Our Campaign</h1>
           <h2 className={styles.heroSubTitle}>
             Tell your MP that Indian officials responsible for violence cannot be invited to the G7
           </h2>
+          <button
+            className={styles.heroButton}
+            onClick={() => {
+              const formSection = document.getElementById('emailForm');
+              if (formSection) formSection.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Email Now
+          </button>
         </div>
         <div className={styles.heroImageWrapper}>
           <img
@@ -128,11 +198,13 @@ function HomePage() {
         </div>
       </section>
 
-      {/* ────────────────────────────────────────── Action Items Section ────────────────────────────────────────── */}
+      {/* Action Items Section */}
       <section className={styles.actionsSection}>
-        <h2 className={styles.sectionHeading}>
+        <p className={styles.sectionIntro}>Our Campaign</p>
+        <h2 className={styles.sectionHeading}>Make your voice heard.</h2>
+        <p className={styles.sectionSubtext}>
           Members of Parliament need to stand up for justice and accountability by taking the following actions
-        </h2>
+        </p>
         <div className={styles.actionsGrid}>
           <div className={styles.actionCard}>
             <h3 className={styles.actionHeading}>Accountability</h3>
@@ -162,56 +234,128 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Original Form Container */}
-      <div className={styles.container}>
-        <p className={styles.contextText}>
-          Confirmed information received by the Sikh Federation Canada indicates that newly elected Prime Minister Mark Carney
-          and Foreign Minister Anita Anand are prioritizing trade interests at the expense of Canadian sovereignty and public safety...
-        </p>
-        <h2 className={styles.callToAction}>"JOIN OUR EMAIL CAMPAIGN TO RAISE YOUR VOICE"</h2>
-        <ul className={styles.howItWorks}>
-          <li>✓ We will look up your MP based on your postal code</li>
-          <li>✓ A pre-written email will be created for you</li>
-          <li>✓ All you need to do is review and send</li>
-        </ul>
-        <p className={styles.instructions}>
-          Once you provide your information below, a pre-written email will automatically open in your mail app...
-        </p>
-        <div className={styles.formGroup}>
-          <label className={styles.label}>First Name</label>
-          <input className={styles.input} value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="Enter your first name"/>
-        </div>
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Last Name</label>
-          <input className={styles.input} value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="Enter your last name"/>
-        </div>
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Email</label>
-          <input type="email" className={styles.input} value={email} onChange={e=>setEmail(e.target.value)} placeholder="Enter your email"/>
-        </div>
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Postal Code (e.g., L6R 0S4)</label>
-          <input className={styles.input} value={postalCode} onChange={e=>setPostalCode(e.target.value.toUpperCase())} placeholder="Enter your postal code"/>
-        </div>
-        {!showModal && (
-          <div className={styles.buttonWrapper}>
-            <button className={styles.button} onClick={findMP}>Find My MP</button>
-          </div>
-        )}
+      {/* Feature Image Section */}
+      <div className={styles.featureImageWrapper}>
+        <img
+          src="/images/feature-image.jpeg"
+          alt="Feature"
+          className={styles.featureImage}
+        />
       </div>
+
+      {/* Form Section (Email Your MP) */}
+      <section className={styles.formSection} id="emailForm">
+        <div className={styles.formImageWrapper}>
+          <img
+            src="/images/form-side-image.jpeg"
+            alt="Standing for Justice"
+            className={styles.formSideImage}
+          />
+        </div>
+        <div className={styles.formContentWrapper}>
+          {/* Faint top divider */}
+          <div className={styles.formTopDivider} />
+
+          {/* Heading */}
+          <h2 className={styles.formHeading}>Email Your MP</h2>
+
+          {/* Quote / description */}
+          <p className={styles.formQuote}>
+            Confirmed information received by the Sikh Federation Canada indicates that newly elected Prime Minister Mark Carney
+            and Foreign Minister Anita Anand are prioritizing trade interests at the expense of Canadian sovereignty and public safety...
+          </p>
+
+          {/* Numbered steps */}
+          <ol className={styles.formSteps}>
+            <li>We will look up your MP based on your postal code</li>
+            <li>A pre-written email will be created for you</li>
+            <li>All you need to do is review and press 'Send'</li>
+          </ol>
+
+          {/* Input form wrapped in a form tag */}
+          <form onSubmit={findMP}>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>First Name</label>
+              <input
+                className={styles.input}
+                value={firstName}
+                onChange={e => setFirstName(e.target.value)}
+                placeholder="Enter your first name"
+                required
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Last Name</label>
+              <input
+                className={styles.input}
+                value={lastName}
+                onChange={e => setLastName(e.target.value)}
+                placeholder="Enter your last name"
+                required
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Email</label>
+              <input
+                type="email"
+                className={styles.input}
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.label}>Postal Code (e.g., L6R 0S4)</label>
+              <input
+                className={styles.input}
+                value={postalCode}
+                onChange={e => setPostalCode(e.target.value.toUpperCase())}
+                placeholder="Enter your postal code"
+                required
+              />
+            </div>
+
+            {/* Find My MP button (left-aligned) */}
+            <div className={styles.buttonWrapperLeft}>
+              <button type="submit" className={styles.button}>
+                Find My MP
+              </button>
+            </div>
+          </form>
+
+          {/* Bottom full-width divider */}
+          <div className={styles.formBottomDivider} />
+        </div>
+      </section>
 
       {/* Email Preview Modal */}
       {showModal && mpData && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalBox}>
-            <h3>Email Preview</h3>
+            <div className={styles.modalHeader}>
+              <h3>Email Preview</h3>
+              <button 
+                className={styles.modalClose} 
+                onClick={() => setShowModal(false)} 
+                aria-label="Close"
+              >
+                <X size={20} />
+              </button>
+            </div>
             <p><strong>To:</strong> {mpData.email}</p>
-            <p><strong>Subject:</strong> Urgent Request: Do Not Invite Indian Delegation</p>
+            <p><strong>Subject:</strong> Urgent Request: Do Not Invite Indian Delegation to G7 Summit</p>
             <label className={styles.label}>Message</label>
-            <textarea className={styles.input} rows={8} value={emailBody} onChange={e=>setEmailBody(e.target.value)}/>
+            <textarea
+              className={styles.input}
+              rows={8}
+              value={emailBody}
+              onChange={e => setEmailBody(e.target.value)}
+            />
             <div className={styles.buttonWrapper}>
-              <button className={styles.button} onClick={sendEmail}>Send Email to MP</button>
-              <button className={styles.secondaryButton} onClick={()=>setShowModal(false)}>Cancel</button>
+              <button className={styles.button} onClick={sendEmail}>
+                Send
+              </button>
             </div>
           </div>
         </div>
@@ -222,15 +366,16 @@ function HomePage() {
         <div className={styles.modalOverlay}>
           <div className={styles.modalBox}>
             <h3>Thank You!</h3>
-            <p>Your email has been logged successfully. We appreciate your action.</p>
+            <p>Your email has been sent to your mail app successfully. Please ensure you have pressed send.</p>
             <div className={styles.buttonWrapper}>
-              <button className={styles.button} onClick={()=>setShowThankYouModal(false)}>Close</button>
+              <button className={styles.button} onClick={() => setShowThankYouModal(false)}>
+                Close
+              </button>
             </div>
           </div>
         </div>
       )}
-
-    </div>
+    </>
   );
 }
 
@@ -240,7 +385,8 @@ function AboutPage() {
     <div className={styles.container}>
       <h1 className={styles.mainTitle}>About</h1>
       <p className={styles.contextText}>
-        The Ontario Gurdwaras Committee represents gurdwaras across Ontario, advocating for Sikh Canadians' rights and promoting community welfare...
+        Sikh Federation (Canada) is a Sikh advocacy organization dedicated to empowering the Sikh community in Canada to advocate for dignity, justice, and self-determination.<br /><br />
+        Find us at <a href="https://sikhfederation.ca" target="_blank" rel="noopener noreferrer">sikhfederation.ca</a>
       </p>
     </div>
   );
@@ -249,17 +395,25 @@ function AboutPage() {
 // ───────────────────────────────────────────────────── ContactPage ─────────────────────────────────────────────────────
 function ContactPage() {
   const [message, setMessage] = useState('');
+
   const handleSubmit = e => {
     e.preventDefault();
     alert('Thank you for reaching out!');
     setMessage('');
   };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.mainTitle}>Contact Us</h1>
       <form onSubmit={handleSubmit} className={styles.formGroup}>
         <label className={styles.label}>Your Message</label>
-        <textarea className={styles.input} rows={6} value={message} onChange={e=>setMessage(e.target.value)} placeholder="Type your message here..."/>
+        <textarea
+          className={styles.input}
+          rows={6}
+          value={message}
+          onChange={e => setMessage(e.target.value)}
+          placeholder="Type your message here..."
+        />
         <button type="submit" className={styles.button}>Send</button>
       </form>
     </div>
@@ -269,6 +423,7 @@ function ContactPage() {
 // ───────────────────────────────────────────────────── App ─────────────────────────────────────────────────────
 export default function App() {
   const [darkMode, setDarkMode] = useState(false);
+
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
   }, [darkMode]);

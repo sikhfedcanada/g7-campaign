@@ -1,17 +1,26 @@
+.modalBox {
+  background: var(--box-bg);
+  padding: 2rem;
+  max-width: 600px;
+  border-radius: 12px;
+  font-family: 'Source Sans Pro', sans-serif;
+  text-align: left;
+  position: relative;
+}
 /* Apple-inspired light & dark mode CSS with data-theme selector */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:wght@400;600&display=swap');
 @import url(https://db.onlinewebfonts.com/c/e307195432f00bcd92a324df9ae723a5?family=Tarocco+OT+W03+Roman);
 @font-face {
   font-family: "Pippin";
-  src: url("./assets/fonts/pippin.woff2") format("woff2"),;
+  src: url("./assets/fonts/pippin.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap; /* ensures text remains visible while loading */
 }
 
 :root {
-  --bg: #f9f9fb;
+  --bg: #ffffff;
   --text: #1c1c1e;
   --box-bg: #ffffff;
   --box-shadow: rgba(0, 0, 0, 0.05);
@@ -64,7 +73,7 @@ html, body {
 
 .logo {
   flex: 0 0 auto;
-  font-family: 'Playfair Display', serif;
+  font-family: 'Source Sans Pro', sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--accent);
@@ -83,7 +92,7 @@ html, body {
 .navItem {
   text-decoration: none;
   color: var(--text);
-  font-family: 'Playfair Display', serif;
+  font-family: 'Source Sans Pro', sans-serif;
   font-weight: 600;
   transition: color 0.2s ease;
   padding: 0.5rem 0;
@@ -112,15 +121,15 @@ html, body {
 }
 
 .mobileMenu {
-  position: absolute;
-  top: 60px;
-  right: 1.5rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   background: var(--box-bg);
-  box-shadow: 0 4px 12px var(--box-shadow);
-  border-radius: 8px;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  z-index: 1001;
 }
 
 .mobileItem,
@@ -129,7 +138,6 @@ html, body {
   text-decoration: none;
   color: var(--text);
   font-weight: 600;
-  border-bottom: 1px solid var(--border);
   background: var(--box-bg);
   transition: background 0.2s ease;
 }
@@ -140,110 +148,237 @@ html, body {
 }
 
 @media (max-width: 768px) {
+  /* Hide desktop nav elements */
   .navLinks    { display: none; }
   .themeToggle { display: none; }
   .hamburger   { display: block; }
+
+  /* Remove navbar bottom border */
+  .navbar {
+    border-bottom: none;
+  }
+
+  /* Remove vertical hero dividers */
+  .heroSection::before {
+    display: none;
+  }
+  .heroSection::after {
+    bottom: -20px;
+  }
+
+  /* Hide logo divider */
+  .logo {
+    border-right: none;
+  }
+
+  /* Hero: stack vertically, center everything */
+  .heroSection {
+    display: flex;
+    flex-direction: column; /* text first, image second */
+    align-items: center;
+    padding: 0 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .heroContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Title: order 1, centered */
+  .heroTitle {
+    order: 1;
+    font-family: "Pippin", serif;
+    font-size: 5.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    width: 100%;
+  }
+
+  /* Subtitle (tell your MP): order 3, smaller font, centered */
+  .heroSubTitle {
+    order: 3;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1.25rem; /* reduced size */
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: auto;     /* push subtitle down */
+    margin-bottom: 1rem;  /* gap before button */
+    text-align: center;
+    width: 100%;
+  }
+
+  /* Button: order 4, centered and slightly below subtitle */
+  .heroButton {
+    order: 4;
+    padding: 0.75rem 1.5rem;      /* match other .button elements */
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0 0 2rem 0;           /* space from bottom */
+  }
+  .heroButton:hover {
+    background: #001f44;          /* maintain hover style */
+  }
+
+  /* Image wrapper: order 2, center image */
+  .heroImageWrapper {
+    order: 2;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 0;
+  }
+  .heroImage {
+    width: 80%;
+    max-width: 400px;
+    height: auto;                /* ensure proportional scaling */
+    border-radius: 20px;
+    object-fit: cover;
+  }
 }
 
 @media (min-width: 769px) {
   .hamburger   { display: none; }
   .mobileMenu  { display: none; }
+
+  /* Hero uses a two-column grid */
+  .heroSection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: flex-start;
+    column-gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 4rem 0 3rem;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  /* Make heroContent span full height and use flex column spacing */
+  .heroContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  /* Vertical divider in center */
+  .heroSection::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 100%;
+    background: var(--border);
+    z-index: 0;
+  }
+
+  /* Bottom divider across full viewport */
+  .heroSection::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 1px;
+    background: var(--border);
+    z-index: 0;
+  }
+
+  /* Title in left column */
+  .heroTitle {
+    font-family: "Pippin", serif;
+    font-size: 6.5rem;
+    font-weight: 400;
+    margin: 0;
+    color: var(--text);
+    line-height: 1.1;
+    grid-column: 1;
+    z-index: 1;
+  }
+
+  /* Subtitle just below title */
+  .heroSubTitle {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 1rem 0;
+    grid-column: 1;
+    z-index: 1;
+    margin-top: auto; /* push subtitle to bottom of column */
+  }
+
+  /* Image in right column */
+  .heroImageWrapper {
+    grid-column: 2;
+    display: flex;
+    justify-content: center;
+    z-index: 1;
+  }
+  .heroImage {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    object-fit: cover;
+  }
+
+  /* Button appears under subtitle in left column */
+  .heroButton {
+    padding: 0.75rem 1.5rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    grid-column: 1;
+    margin-top: 1rem;
+    z-index: 1;
+  }
+  .heroButton:hover {
+    background: #001f44;
+  }
 }
 
-/* Hero Layout using CSS Grid */
-.heroSection {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: start;
-  column-gap: 2rem;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 4rem 0 3rem;
-  position: relative;
-}
-
-.heroSection::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1px;
-  height: 100%;
-  background: var(--border);
-  z-index: 0;
-}
-
-.heroSection::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100vw;
-  height: 1px;
-  background: var(--border);
-  z-index: 0;
-}
-
-.heroText {
+.featureImageWrapper {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  z-index: 1;
-  padding-right: 2rem;
-  height: 100%;
+  justify-content: center; /* center the image horizontally */
+  padding: 2rem 1rem;
+  margin-bottom: 3rem;
 }
 
-.heroTitle {
-  font-family: "Pippin", serif;
-  font-size: 4rem;
-  font-weight: 400;
-  margin: 0;
-  color: var(--text);
-  line-height: 1.1;
-}
-
-.heroSubTitle {
-  font-family: "Tarocco OT W03 Roman", serif;
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0;
-  color: var(--accent);
-  position: relative;
-  z-index: 1;
-}
-
-.heroImageWrapper {
-  display: flex;
-  justify-content: flex-end;
-  position: relative;
-  z-index: 1;
-  padding-left: 2rem; /* add space from the divider */
-}
-
-.heroImage {
+.featureImage {
   width: 100%;
-  max-width: 100%;
+  max-width: 1000px;
+  max-height: 400px;    /* limit the height */
   border-radius: 20px;
-  box-shadow: 0 10px 30px var(--box-shadow);
-  object-fit: cover;
+  object-fit: cover;     /* crop to fill */
+  object-position: top; /* show slightly lower section to reveal quote and logo */
 }
 
 @media (max-width: 768px) {
-  .heroSection {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0 1rem;
-  }
   .heroTitle {
+    font-family: "Pippin", serif;
     font-size: 3rem;
     text-align: center;
     margin-bottom: 1.5rem;
   }
-  .heroImage {
+  .featureImage {
     width: 80%;
     max-width: 400px;
   }
@@ -257,11 +392,10 @@ html, body {
 
 .container {
   max-width: 800px;
-  margin: 80px auto 40px;
+  margin: 80px auto 64px; /* increased bottom margin to 64px (4rem) */
   padding: 40px;
   background: var(--box-bg);
   border-radius: 20px;
-  box-shadow: 0 20px 50px var(--box-shadow);
   transition: all 0.3s ease;
 }
 
@@ -352,8 +486,8 @@ html, body {
 
 .buttonWrapper {
   display: flex;
-  justify-content: center;
-  margin-top: 1.5rem;
+  justify-content: flex-start;
+  margin-top: 1rem;
   gap: 1rem;
 }
 
@@ -362,32 +496,19 @@ html, body {
   background: var(--accent);
   color: #fff;
   border: none;
-  border-radius: 12px;
-  font-size: 0.95rem;
+  border-radius: 8px;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 40, 85, 0.15);
+  font-family: 'Source Sans Pro', sans-serif;
+  transition: background 0.2s ease;
 }
-
 .button:hover {
   background: #001f44;
-  transform: translateY(-2px);
 }
 
 .secondaryButton {
-  padding: 0.75rem 1.5rem;
-  background: var(--secondary-bg);
-  color: var(--text);
-  border: none;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.secondaryButton:hover {
-  background: var(--box-bg);
+  /* Removed any modal-specific cancel styling */
 }
 
 /* Modals & Animations */
@@ -404,69 +525,97 @@ html, body {
   animation: fadeIn 0.3s ease;
 }
 
-.modalBox {
-  background: var(--modal-bg);
-  padding: 2.5rem;
-  width: 90%;
-  max-width: 600px;
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-  z-index: 1001;
-  animation: fadeInUp 0.3s ease;
+/* Updated modalBox above */
+.modalClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1.25rem;
 }
+
 
 .modalBox h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: var(--accent);
-  text-align: center;
+  /* Updated above */
 }
 
-.modalDetails {
-  background: var(--secondary-bg);
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+.modalBox p {
+  /* Added above */
+}
+
+.modalBox label {
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
 textarea.input {
-  min-height: 10rem;
+  width: 100%;
+  box-sizing: border-box;      /* include padding in width */
+  min-height: 12rem;
   resize: vertical;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--input-text);
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.disclaimer {
-  font-size: 0.75rem;
-  color: #666;
-  margin-top: 2rem;
-  text-align: center;
-}
+ /* Keyframes */
+ @keyframes fadeInUp {
+   0% { opacity: 0; transform: translateY(15px); }
+   100% { opacity: 1; transform: translateY(0); }
+ }
 
-/* Keyframes */
-@keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(15px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
+ @keyframes fadeIn {
+   0% { opacity: 0; }
+   100% { opacity: 1; }
+ }
 
 /* ───────────────────────────────────────────────────── Action Items Section ───────────────────────────────────────────────────── */
 .actionsSection {
   max-width: 1000px;
-  margin: 0 auto 3rem;
+  margin: 0 auto 4rem;
   padding: 2rem 1rem;
 }
 
+.sectionIntro {
+  max-width: 1000px;
+  margin: 0 auto 0.5rem;
+  padding: 0 1rem;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.sectionSubtext {
+  max-width: 1000px;
+  margin: 0.5rem auto 2rem;
+  padding: 0 1rem;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.5;
+}
+
 .sectionHeading {
+  max-width: 1000px;
+  margin: 0 auto 2rem;
+  padding: 0 1rem;
   font-family: "Tarocco OT W03 Roman", serif;
   font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 2rem;
-  text-align: center;
+  text-align: left;
   color: var(--text);
 }
 
@@ -477,16 +626,20 @@ textarea.input {
 }
 
 .actionCard {
-  background: var(--box-bg);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  position: relative;
+  padding: 1.5rem 1rem 1rem;
   transition: transform 0.2s ease;
 }
 
-.actionCard:hover {
-  transform: translateY(-4px);
+.actionCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.4;
 }
 
 .actionHeading {
@@ -510,5 +663,1136 @@ textarea.input {
   }
   .sectionHeading {
     font-size: 1.75rem;
+  }
+}
+
+/* ───────────────────────────────────────── Form Section ───────────────────────────────────────── */
+.formSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 1000px;
+  margin: 0 auto 4rem;
+  padding: 2rem 1rem;
+  column-gap: 1rem;
+  align-items: stretch;
+}
+
+.formSection::after {
+  content: "";
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.6;
+  margin-top: 2rem;
+}
+
+.formImageWrapper {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+}
+
+.formSideImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  object-fit: cover;
+}
+
+.formContentWrapper {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.formTopDivider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.4;
+  margin-bottom: 1rem;
+}
+
+.formHeading {
+  font-family: 'Tarocco OT W03 Roman', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 0.5rem;
+  padding: 0 0.5rem;
+}
+
+.formQuote {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0 0 1.5rem;
+  padding: 0 0.5rem;
+}
+
+.formSteps {
+  list-style: decimal inside;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 0.95rem;
+  margin: 0 0 2rem;
+  padding: 0 0.5rem;
+}
+
+.formSteps li {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.formSteps li:first-child {
+  /* Ensure a top line above the first item */
+  border-top: 1px solid var(--border);
+}
+
+.formSteps li:last-child {
+  /* Ensure a bottom line below the last item */
+  border-bottom: 1px solid var(--border);
+}
+
+.buttonWrapperLeft {
+  display: flex; 
+  justify-content: flex-start;
+  margin-top: 1.5rem;
+  padding: 0 0.5rem;
+}
+
+/* Responsive: stack image and form on smaller screens */
+@media (max-width: 768px) {
+  .formSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+  .formImageWrapper {
+    display: none;
+  }
+  .formSideImage {
+    width: 80%;
+    max-width: 350px;
+    height: auto;
+  }
+  .formContentWrapper {
+    width: 100%;
+  }
+  .formHeading {
+    text-align: center;
+    font-size: 1.75rem;
+  }
+  .formQuote,
+  .formSteps,
+  .buttonWrapperLeft {
+    padding: 0 1rem;
+  }
+}
+
+.mobileHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.5rem;
+  height: 60px; /* match navbar height so X aligns */
+}
+
+.mobileLogo {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.mobileClose {
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* Divider line between items */
+.mobileDivider {
+  width: calc(100% - 3rem); /* 1.5rem gap on each side */
+  height: 1px;
+  background: var(--border);
+  opacity: 0.6;
+  margin: 1rem auto; /* uniform gap above and below */
+}
+
+/* Container for navigation links */
+.mobileNavLinks {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.mobileItem {
+  padding: 1rem 1.5rem; /* 1rem vertical, 1.5rem horizontal */
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  font-family: 'Source Sans Pro', sans-serif;
+  background: var(--box-bg);
+  transition: background 0.2s ease;
+}
+
+.mobileItem:hover {
+  background: var(--secondary-bg);
+}
+
+/* Footer containing "Email Now" button and theme toggle */
+.mobileFooter {
+  display: flex;
+  justify-content: space-between; /* Email Now on left, toggle on right */
+  align-items: center;
+  padding: 1rem 1.5rem 2rem;      /* extra 2rem bottom padding */
+  /* no border-top */
+}
+
+.mobileEmailButton {
+  padding: 0.75rem 1.5rem;    /* match other .button elements */
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+.mobileEmailButton:hover {
+  background: #001f44;
+}
+
+.mobileThemeToggle {
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .mobileLogo {
+    font-size: 1.5rem; /* match main page logo/nav size */
+  }
+  /* Ensure the close icon aligns exactly where the hamburger was: */
+  .mobileClose {
+    margin-right: 1rem; /* moved slightly closer to right edge */
+  }
+}
+.modalBox {
+  background: var(--box-bg);
+  padding: 2rem;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 12px;
+  font-family: 'Source Sans Pro', sans-serif;
+  text-align: left;
+  position: relative;
+}
+/* Apple-inspired light & dark mode CSS with data-theme selector */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:wght@400;600&display=swap');
+@import url(https://db.onlinewebfonts.com/c/e307195432f00bcd92a324df9ae723a5?family=Tarocco+OT+W03+Roman);
+@font-face {
+  font-family: "Pippin";
+  src: url("./assets/fonts/pippin.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* ensures text remains visible while loading */
+}
+
+:root {
+  --bg: #ffffff;
+  --text: #1c1c1e;
+  --box-bg: #ffffff;
+  --box-shadow: rgba(0, 0, 0, 0.05);
+  --accent: #002855;
+  --highlight: #FFD200;
+  --label: #002855;
+  --input-bg: #fbfbfc;
+  --input-text: #1c1c1e;
+  --border: #d1d1d6;
+  --secondary-bg: #f5f7fa;
+  --modal-bg: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="dark"] {
+  --bg: #1c1c1e;
+  --text: #f2f2f2;
+  --box-bg: #2c2c2e;
+  --box-shadow: rgba(255, 255, 255, 0.05);
+  --accent: #FFD200;
+  --highlight: #002855;
+  --label: #FFD200;
+  --input-bg: #3a3a3c;
+  --input-text: #ffffff;
+  --border: #444;
+  --secondary-bg: #2c2c2e;
+  --modal-bg: rgba(44,44,46,0.95);
+}
+
+html, body {
+  font-family: 'Source Sans Pro', sans-serif;
+  background: var(--bg);
+  margin: 0;
+  padding: 0;
+  color: var(--text);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* NavBar */
+.navbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--box-bg);
+  padding: 0 1.5rem;
+  height: 60px;
+  box-shadow: none;
+  border-bottom: 1px solid var(--border);
+  z-index: 100;
+}
+
+.logo {
+  flex: 0 0 auto;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  padding-right: 1.5rem;
+  border-right: 1px solid var(--border);
+}
+
+.navLinks {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2rem;
+}
+
+.navItem {
+  text-decoration: none;
+  color: var(--text);
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 600;
+  transition: color 0.2s ease;
+  padding: 0.5rem 0;
+}
+
+.navItem:hover {
+  color: var(--accent);
+}
+
+.themeToggle {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.hamburger {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.mobileMenu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--box-bg);
+  display: flex;
+  flex-direction: column;
+  z-index: 1001;
+}
+
+.mobileItem,
+.mobileThemeToggle {
+  padding: 0.75rem 1.25rem;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  background: var(--box-bg);
+  transition: background 0.2s ease;
+}
+
+.mobileItem:hover,
+.mobileThemeToggle:hover {
+  background: var(--secondary-bg);
+}
+
+@media (max-width: 768px) {
+  /* Hide desktop nav elements */
+  .navLinks    { display: none; }
+  .themeToggle { display: none; }
+  .hamburger   { display: block; }
+
+  /* Remove navbar bottom border */
+  .navbar {
+    border-bottom: none;
+  }
+
+  /* Remove vertical hero dividers */
+  .heroSection::before {
+    display: none;
+  }
+  .heroSection::after {
+    bottom: -20px;
+  }
+
+  /* Hide logo divider */
+  .logo {
+    border-right: none;
+  }
+
+  /* Hero: stack vertically, center everything */
+  .heroSection {
+    display: flex;
+    flex-direction: column; /* text first, image second */
+    align-items: center;
+    padding: 0 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .heroContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Title: order 1, centered */
+  .heroTitle {
+    order: 1;
+    font-family: "Pippin", serif;
+    font-size: 5.5rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    width: 100%;
+  }
+
+  /* Subtitle (tell your MP): order 3, smaller font, centered */
+  .heroSubTitle {
+    order: 3;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1.25rem; /* reduced size */
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: auto;     /* push subtitle down */
+    margin-bottom: 1rem;  /* gap before button */
+    text-align: center;
+    width: 100%;
+  }
+
+  /* Button: order 4, centered and slightly below subtitle */
+  .heroButton {
+    order: 4;
+    padding: 0.75rem 1.5rem;      /* match other .button elements */
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0 0 2rem 0;           /* space from bottom */
+  }
+  .heroButton:hover {
+    background: #001f44;          /* maintain hover style */
+  }
+
+  /* Image wrapper: order 2, center image */
+  .heroImageWrapper {
+    order: 2;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 0;
+  }
+  .heroImage {
+    width: 80%;
+    max-width: 400px;
+    height: auto;                /* ensure proportional scaling */
+    border-radius: 20px;
+    object-fit: cover;
+  }
+}
+
+@media (min-width: 769px) {
+  .hamburger   { display: none; }
+  .mobileMenu  { display: none; }
+
+  /* Hero uses a two-column grid */
+  .heroSection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: flex-start;
+    column-gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 4rem 0 3rem;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  /* Make heroContent span full height and use flex column spacing */
+  .heroContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  /* Vertical divider in center */
+  .heroSection::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 100%;
+    background: var(--border);
+    z-index: 0;
+  }
+
+  /* Bottom divider across full viewport */
+  .heroSection::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 1px;
+    background: var(--border);
+    z-index: 0;
+  }
+
+  /* Title in left column */
+  .heroTitle {
+    font-family: "Pippin", serif;
+    font-size: 6.5rem;
+    font-weight: 400;
+    margin: 0;
+    color: var(--text);
+    line-height: 1.1;
+    grid-column: 1;
+    z-index: 1;
+  }
+
+  /* Subtitle just below title */
+  .heroSubTitle {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 1rem 0;
+    grid-column: 1;
+    z-index: 1;
+    margin-top: auto; /* push subtitle to bottom of column */
+  }
+
+  /* Image in right column */
+  .heroImageWrapper {
+    grid-column: 2;
+    display: flex;
+    justify-content: center;
+    z-index: 1;
+  }
+  .heroImage {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    object-fit: cover;
+  }
+
+  /* Button appears under subtitle in left column */
+  .heroButton {
+    padding: 0.75rem 1.5rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    grid-column: 1;
+    margin-top: 1rem;
+    z-index: 1;
+  }
+  .heroButton:hover {
+    background: #001f44;
+  }
+}
+
+.featureImageWrapper {
+  display: flex;
+  justify-content: center; /* center the image horizontally */
+  padding: 2rem 1rem;
+  margin-bottom: 3rem;
+}
+
+.featureImage {
+  width: 100%;
+  max-width: 1000px;
+  max-height: 400px;    /* limit the height */
+  border-radius: 20px;
+  object-fit: cover;     /* crop to fill */
+  object-position: top; /* show slightly lower section to reveal quote and logo */
+}
+
+@media (max-width: 768px) {
+  .heroTitle {
+    font-family: "Pippin", serif;
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .featureImage {
+    width: 80%;
+    max-width: 400px;
+  }
+}
+
+/* Container & Layout */
+/* Container & Layout */
+.pageWrapper {
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 800px;
+  margin: 80px auto 64px; /* increased bottom margin to 64px (4rem) */
+  padding: 40px;
+  background: var(--box-bg);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.mainTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  line-height: 1.3;
+}
+
+/* Context block */
+.contextText {
+  background: var(--secondary-bg);
+  padding: 1.25rem;
+  border-left: 4px solid var(--highlight);
+  border-radius: 10px;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+/* Call to action block */
+.callToAction {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 2rem 0 1.5rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* How it works list */
+.howItWorks {
+  list-style: none;
+  background: var(--box-bg);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.howItWorks li {
+  margin-bottom: 0.5rem;
+}
+
+/* Instructions block */
+.instructions {
+  background: var(--secondary-bg);
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+/* Form & Buttons */
+.formGroup {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--label);
+  font-size: 0.875rem;
+}
+
+.input {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background: var(--input-bg);
+  color: var(--input-text);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--highlight);
+}
+
+.buttonWrapper {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 1rem;
+  gap: 1rem;
+}
+
+.button {
+  padding: 0.75rem 1.5rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Source Sans Pro', sans-serif;
+  transition: background 0.2s ease;
+}
+.button:hover {
+  background: #001f44;
+}
+
+.secondaryButton {
+  /* Removed any modal-specific cancel styling */
+}
+
+/* Modals & Animations */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(28,28,30,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+/* Updated modalBox above */
+.modalClose {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
+.modalBox {
+  background: var(--box-bg);
+  padding: 2rem;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 12px;
+  font-family: 'Source Sans Pro', sans-serif;
+  text-align: left;
+  position: relative;
+}
+
+.modalBox h3 {
+  /* Updated above */
+}
+
+.modalBox p {
+  /* Added above */
+}
+
+.modalBox label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+textarea.input {
+  width: 100%;
+  box-sizing: border-box;      /* include padding in width */
+  min-height: 12rem;
+  resize: vertical;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--input-text);
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+ /* Keyframes */
+ @keyframes fadeInUp {
+   0% { opacity: 0; transform: translateY(15px); }
+   100% { opacity: 1; transform: translateY(0); }
+ }
+
+ @keyframes fadeIn {
+   0% { opacity: 0; }
+   100% { opacity: 1; }
+ }
+
+/* ───────────────────────────────────────────────────── Action Items Section ───────────────────────────────────────────────────── */
+.actionsSection {
+  max-width: 1000px;
+  margin: 0 auto 4rem;
+  padding: 2rem 1rem;
+}
+
+.sectionIntro {
+  max-width: 1000px;
+  margin: 0 auto 0.5rem;
+  padding: 0 1rem;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.sectionSubtext {
+  max-width: 1000px;
+  margin: 0.5rem auto 2rem;
+  padding: 0 1rem;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.sectionHeading {
+  max-width: 1000px;
+  margin: 0 auto 2rem;
+  padding: 0 1rem;
+  font-family: "Tarocco OT W03 Roman", serif;
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: left;
+  color: var(--text);
+}
+
+.actionsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.actionCard {
+  position: relative;
+  padding: 1.5rem 1rem 1rem;
+  transition: transform 0.2s ease;
+}
+
+.actionCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.4;
+}
+
+.actionHeading {
+  font-family: "Tarocco OT W03 Roman", serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+}
+
+.actionCard p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+/* Responsive: collapse to single column on mobile */
+@media (max-width: 768px) {
+  .actionsGrid {
+    grid-template-columns: 1fr;
+  }
+  .sectionHeading {
+    font-size: 1.75rem;
+  }
+}
+
+/* ───────────────────────────────────────── Form Section ───────────────────────────────────────── */
+.formSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  max-width: 1000px;
+  margin: 0 auto 4rem;
+  padding: 2rem 1rem;
+  column-gap: 1rem;
+  align-items: stretch;
+}
+
+.formSection::after {
+  content: "";
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.6;
+  margin-top: 2rem;
+}
+
+.formImageWrapper {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+}
+
+.formSideImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  object-fit: cover;
+}
+
+.formContentWrapper {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.formTopDivider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.4;
+  margin-bottom: 1rem;
+}
+
+.formHeading {
+  font-family: 'Tarocco OT W03 Roman', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 0.5rem;
+  padding: 0 0.5rem;
+}
+
+.formQuote {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0 0 1.5rem;
+  padding: 0 0.5rem;
+}
+
+.formSteps {
+  list-style: decimal inside;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 0.95rem;
+  margin: 0 0 2rem;
+  padding: 0 0.5rem;
+}
+
+.formSteps li {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.formSteps li:first-child {
+  /* Ensure a top line above the first item */
+  border-top: 1px solid var(--border);
+}
+
+.formSteps li:last-child {
+  /* Ensure a bottom line below the last item */
+  border-bottom: 1px solid var(--border);
+}
+
+.buttonWrapperLeft {
+  display: flex; 
+  justify-content: flex-start;
+  margin-top: 1.5rem;
+  padding: 0 0.5rem;
+}
+
+/* Responsive: stack image and form on smaller screens */
+@media (max-width: 768px) {
+  .formSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+  .formImageWrapper {
+    display: none;
+  }
+  .formSideImage {
+    width: 80%;
+    max-width: 350px;
+    height: auto;
+  }
+  .formContentWrapper {
+    width: 100%;
+  }
+  .formHeading {
+    text-align: center;
+    font-size: 1.75rem;
+  }
+  .formQuote,
+  .formSteps,
+  .buttonWrapperLeft {
+    padding: 0 1rem;
+  }
+}
+
+.mobileHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.5rem;
+  height: 60px; /* match navbar height so X aligns */
+}
+
+.mobileLogo {
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.mobileClose {
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* Divider line between items */
+.mobileDivider {
+  width: calc(100% - 3rem); /* 1.5rem gap on each side */
+  height: 1px;
+  background: var(--border);
+  opacity: 0.6;
+  margin: 1rem auto; /* uniform gap above and below */
+}
+
+/* Container for navigation links */
+.mobileNavLinks {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.mobileItem {
+  padding: 1rem 1.5rem; /* 1rem vertical, 1.5rem horizontal */
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+  font-family: 'Source Sans Pro', sans-serif;
+  background: var(--box-bg);
+  transition: background 0.2s ease;
+}
+
+.mobileItem:hover {
+  background: var(--secondary-bg);
+}
+
+/* Footer containing "Email Now" button and theme toggle */
+.mobileFooter {
+  display: flex;
+  justify-content: space-between; /* Email Now on left, toggle on right */
+  align-items: center;
+  padding: 1rem 1.5rem 2rem;      /* extra 2rem bottom padding */
+  /* no border-top */
+}
+
+.mobileEmailButton {
+  padding: 0.75rem 1.5rem;    /* match other .button elements */
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+.mobileEmailButton:hover {
+  background: #001f44;
+}
+
+.mobileThemeToggle {
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .mobileLogo {
+    font-size: 1.5rem; /* match main page logo/nav size */
+  }
+  /* Ensure the close icon aligns exactly where the hamburger was: */
+  .mobileClose {
+    margin-right: 1rem; /* moved slightly closer to right edge */
+  }
+}
+@media (max-width: 768px) {
+  .modalBox {
+    width: calc(90% - 5rem);
+    margin: auto auto;
+    padding: 2rem;
   }
 }
