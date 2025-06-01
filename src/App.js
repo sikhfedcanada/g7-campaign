@@ -144,7 +144,7 @@ function HomePage() {
   const sendEmail = () => {
     if (!mpData) return;
     const subject = 'Urgent Request: Do Not Invite Indian Delegation to G7 Summit';
-    const ccList = ['pm@pm.gc.ca','anita.anand@international.gc.ca','gary.anand@parl.gc.ca','maninder.sidhu@parl.gc.ca','mcu@justice.gc.ca','steven.guilbeault@parl.gc.ca','pierrepoilievre@consesrvative.ca','yves-francois.blanchet@parl.gc.ca','don.davies@parl.gc.ca'
+    const ccList = ['pm@pm.gc.ca','anita.anand@international.gc.ca','gary.anand@parl.gc.ca','maninder.sidhu@parl.gc.ca','mcu@justice.gc.ca','steven.guilbeault@parl.gc.ca','pierrepoilievre@consesrvative.ca','yves-francois.blanchet@parl.gc.ca','don.davies@parl.gc.ca','campaign@sikhfederation.ca'
     ].join(',');
     const bodyEnc = encodeURIComponent(emailBody);
 
