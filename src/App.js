@@ -109,36 +109,44 @@ function HomePage() {
 
   const generateBody = mpName => (
     `Dear ${mpName},\n\n` +
-    `I am writing as a concerned constituent from ${postalCode} about the reports that the Canadian ` +
-    `To speak of shared priorities with a regime that orchestrated the assassination of Shaheed Bhai Hardeep Singh Nijjar—and continues to threaten Sikh lives across Canada—is an affront our community and every community who believes in justice and basic human rights.\n\n` +
-    `We demand three immediate actions from the Government of Canada:\n\n` +
-    `1. Public affirm Canada’s commitment to holding India accountable for its crimes and interference on Canadian soil.\n\n` +
-    `2. Guarantee that no Indian officials will be invited to G7 events or any official Canadian forum until India cooperates fully with criminal investigations, ends its campaign of repression, and demonstrates clear reforms.\n\n` +
-    `3. Impose targeted sanctions on Indian officials—especially Home Affairs Minister Amit Shah—who are credibly implicated in orchestrating violence in Canada.\n\n` +
-    `I trust that you will recognize the gravity of this issues and take the right steps to ensure the safety and dignity of all communities in Canada.\n\n` +
+    `I am writing as a concerned constituent from ${postalCode} about reports that the Government of Canada is considering inviting Indian representatives to participate in the G7 Leaders’ Summit next month.\n\n` +
+    `To consider the restoration of ties with a regime that orchestrated the assassination of Shaheed Bhai Hardeep Singh Nijjar—and continues to threaten Sikh lives across Canada—is a significant affront to every family and community who has been impacted by this violence.\n\n` +
+    `Normalization with India, without concrete steps towards accountability and justice, would be reprehensible given the overwhelming evidence of India’s aggressive foreign interference and violent campaigns targeting Sikhs in Canada.\n\n` +
+    `Canadian representatives must ensure that no official representing the Government of India is invited to attend until India substantially cooperates with criminal investigations in Canada, and makes other demonstrable reforms.\n\n` +
+    `I urge you to stand up for justice and accountability by taking the following actions:\n\n` +
+    `1. Call on the Government of Canada to publicly affirm its commitment to demand accountability from India for its documented crimes on Canadian soil. Canada must demonstrate the political will to ensure Indian officials cooperate with Canadian investigations.\n\n` +
+    `2. Call on the Government of Canada to ensure that no Indian representatives are invited to G7 events under any circumstances without India substantially cooperating with criminal investigations in Canada, and making other demonstrable reforms, including respecting human rights, ceasing transnational repression, and ending disinformation campaigns against Canadian officials and communities.\n\n` +
+    `3. Take steps to implement targeted sanctions against Indian officials, including Home Affairs Minister Amit Shah and others credibly linked to orchestrating violence and interference in Canada.\n\n` +
+    `I trust that you will recognize the gravity of this issue and take the right steps to ensure the safety and dignity of all communities in Canada.\n\n` +
     `Sincerely,\n${firstName} ${lastName}`
   );
 
   const findMP = async (event) => {
     event.preventDefault();
+    if (!postalCode || postalCode.trim() === '') {
+      alert('Please enter a valid postal code.');
+      return;
+    }
     try {
-      const res = await axios.get(
-        `https://represent.opennorth.ca/postcodes/${encodeURIComponent(postalCode)}/`
-      );
-      const mp = res.data.representatives_centroid.find(r => r.elected_office === 'MP');
-      if (!mp) throw new Error('No MP found for that postal code');
-      setMpData(mp);
-      setEmailBody(generateBody(mp.name));
+      const res = await axios.get(`/api/get-mp?postal=${encodeURIComponent(postalCode)}`);
+      const { mp_name, mp_email } = res.data;
+      if (!mp_email) {
+        throw new Error('No email found for your MP.');
+      }
+      // Set mpData to be used in modal
+      setMpData({ name: mp_name, email: mp_email });
+      setEmailBody(generateBody(mp_name));
       setShowModal(true);
     } catch (err) {
-      alert(err.message || 'Error finding your MP—please check your postal code.');
+      const msg = err.response?.data?.error || err.message || 'Error finding your MP';
+      alert(msg);
     }
   };
 
   const sendEmail = () => {
     if (!mpData) return;
     const subject = 'Urgent Request: Do Not Invite Indian Delegation to G7 Summit';
-    const ccList = ['info@ontariogurdwaras.com','bill.blair@parl.gc.ca','pm@pm.gc.ca','katharine.heus@pmo-cpm.gc.ca','shaili.patel@pmo-cpm.gc.ca','melanie.joly@parl.gc.ca','anita.anand@international.gc.ca'
+    const ccList = ['pm@pm.gc.ca','anita.anand@international.gc.ca','gary.anand@parl.gc.ca','maninder.sidhu@parl.gc.ca','mcu@justice.gc.ca','steven.guilbeault@parl.gc.ca','pierrepoilievre@consesrvative.ca','yves-francois.blanchet@parl.gc.ca','don.davies@parl.gc.ca'
     ].join(',');
     const bodyEnc = encodeURIComponent(emailBody);
 
@@ -177,7 +185,7 @@ function HomePage() {
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>Join Our Campaign</h1>
           <h2 className={styles.heroSubTitle}>
-            Tell your MP that Indian officials responsible for violence cannot be invited to the G7
+            Don’t Stay Silent — Send a Pre-Written Email to Your MP in Seconds by clicking on the button below.
           </h2>
           <button
             className={styles.heroButton}
@@ -191,7 +199,7 @@ function HomePage() {
         </div>
         <div className={styles.heroImageWrapper}>
           <img
-            src="/images/hero-image.jpeg"
+            src="/images/hero--image.jpeg"
             alt="Campaign spotlight"
             className={styles.heroImage}
           />
@@ -261,8 +269,7 @@ function HomePage() {
 
           {/* Quote / description */}
           <p className={styles.formQuote}>
-            Confirmed information received by the Sikh Federation Canada indicates that newly elected Prime Minister Mark Carney
-            and Foreign Minister Anita Anand are prioritizing trade interests at the expense of Canadian sovereignty and public safety...
+            The Government of Canada is considering inviting Indian officials to the G7 Leaders' Summit in June. Contact your MP to let them know that any normalization with India, without concrete steps towards justice and accountability, is unacceptable.
           </p>
 
           {/* Numbered steps */}
