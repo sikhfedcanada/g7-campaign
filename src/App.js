@@ -128,18 +128,16 @@ function HomePage() {
       return;
     }
     try {
-      const res = await axios.get(`/api/get-mp?postal=${encodeURIComponent(postalCode)}`);
-      const { mp_name, mp_email } = res.data;
-      if (!mp_email) {
-        throw new Error('No email found for your MP.');
-      }
-      // Set mpData to be used in modal
-      setMpData({ name: mp_name, email: mp_email });
-      setEmailBody(generateBody(mp_name));
+      const res = await axios.get(
+        `https://represent.opennorth.ca/postcodes/${encodeURIComponent(postalCode)}/`
+      );
+      const mp = res.data.representatives_centroid.find(r => r.elected_office === 'MP');
+      if (!mp) throw new Error('No MP found');
+      setMpData(mp);
+      setEmailBody(generateBody(mp.name));
       setShowModal(true);
     } catch (err) {
-      const msg = err.response?.data?.error || err.message || 'Error finding your MP';
-      alert(msg);
+      alert(err.message);
     }
   };
 
