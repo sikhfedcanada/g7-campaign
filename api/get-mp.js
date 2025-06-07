@@ -86,7 +86,15 @@ export default async function handler(req, res) {
       r.riding.includes(ridingName) || ridingName.includes(r.riding)
     );
     console.log('Possible close matches:', closeMatches);
-    const match = mpList.find(r => r.riding === ridingName);
+    const match = mpList.find(r => {
+      if (r.riding === ridingName) {
+        console.log('✅ Exact match:', r.riding, '===', ridingName);
+        return true;
+      } else {
+        console.log('❌ No match:', r.riding, '!==', ridingName);
+        return false;
+      }
+    });
     console.log('Looking for match:', ridingName);
     console.log('Found match:', match);
     const mp_name  = match ? match.mp_name  : 'Unknown MP';
