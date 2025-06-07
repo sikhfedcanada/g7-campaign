@@ -48,7 +48,13 @@ export default async function handler(req, res) {
     if (!feat) {
       return res.status(404).json({ error: 'No riding found at that location.' });
     }
-    const normalize = str => str.toLowerCase().replace(/[\u2013\u2014]/g, '-').trim();
+    const normalize = str =>
+      str
+        .toLowerCase()
+        .replace(/[\u2010-\u2015\u2212]/g, '-')         // normalize various dash types to hyphen
+        .replace(/\s+/g, ' ')                           // collapse multiple spaces
+        .replace(/[^\x20-\x7E]/g, '')                   // remove non-ASCII invisible chars
+        .trim();
     const ridingName = normalize(feat.properties.ED_NAME || feat.properties.ED_NAMEE || '');
 
     // 6) load & parse your CSV of updated MPs
