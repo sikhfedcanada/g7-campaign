@@ -61,8 +61,8 @@ export default async function handler(req, res) {
         .pipe(csv())
         .on('data', row => {
           console.log('CSV row:', row);
-          if (row.riding_name && row.mp_name && row.mp_email) {
-            const csvRiding = normalize(row.riding_name);
+          if (row.riding && row.mp_name && row.mp_email) {
+            const csvRiding = normalize(row.riding);
             console.log('Normalized CSV riding:', csvRiding, '| MP:', row.mp_name);
             rows.push({
               riding:   csvRiding,
