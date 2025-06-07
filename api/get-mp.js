@@ -1,18 +1,18 @@
 // api/get-mp.js
-import fs from 'fs';
+import fs   from 'fs';
 import path from 'path';
-import csv from 'csv-parser';
+import csv  from 'csv-parser';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { point } from '@turf/helpers';
 
 export default async function handler(req, res) {
-  // ── 1) CORS ──────────────────────────────────────────────────────────────
+  // 1) CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // ── 2) Normalize & validate postal ───────────────────────────────────────
+  // 2) sanitize & validate postal
   const raw    = (req.query.postal||'').toString().trim().toUpperCase();
   const postal = raw.replace(/\s+/g,'');
   if (!/^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(postal)) {
@@ -20,62 +20,70 @@ export default async function handler(req, res) {
   }
 
   try {
-    // ── 3) Geocode that postal to get lat/lon ───────────────────────────────
+    // 3) geocode — must NOT have trailing slash
     const geoUrl = `https://represent.opennorth.ca/postcodes/${postal}`;
-    console.log('Fetching geocode:', geoUrl);
+    console.log('▶️ geocode URL:', geoUrl);
     const geoRes = await fetch(geoUrl);
     if (!geoRes.ok) {
-      throw new Error(`Geocode error: ${geoRes.status}`);
+      throw new Error(`Geocode error: HTTP ${geoRes.status}`);
     }
     const geo = await geoRes.json();
-    const coords = geo.centroid?.coordinates;
-    if (!coords || coords.length !== 2) {
-      throw new Error('No centroid returned');
+    if (!geo.centroid?.coordinates) {
+      throw new Error('No centroid in geocode response');
     }
-    const [lon, lat] = coords;
+    const [lon, lat] = geo.centroid.coordinates;
     const pt = point([lon, lat]);
 
-    // ── 4) Load your GeoJSON boundaries ─────────────────────────────────────
-    const districtsPath = path.join(process.cwd(), 'data', 'geojson', 'fed_districts.geojson');
-    const districtsRaw  = fs.readFileSync(districtsPath, 'utf8');
-    const districts     = JSON.parse(districtsRaw);
+    // 4) load & parse your GeoJSON
+    const districtsPath = path.join(
+      process.cwd(), 'data','geojson','fed_districts.geojson'
+    );
+    const rawJson = fs.readFileSync(districtsPath, 'utf8');
+    const districts = JSON.parse(rawJson);
 
-    // ── 5) Find which riding polygon contains that point ────────────────────
-    const feat = districts.features.find(f => booleanPointInPolygon(pt, f));
+    // 5) find containing riding polygon
+    const feat = districts.features.find(f => 
+      booleanPointInPolygon(pt, f)
+    );
     if (!feat) {
       return res.status(404).json({ error: 'No riding found at that location.' });
     }
-    const ridingName = feat.properties.ED_NAMEE.trim();
-    const ridingKey  = ridingName.toLowerCase();
+    const ridingName = feat.properties.ED_NAMEE.trim().toLowerCase();
 
-    // ── 6) Load & parse your CSV of up-to-date MPs ──────────────────────────
-    const csvFile = path.join(process.cwd(), 'data', 'csv', 'mp_list.csv');
-    const mpList  = await new Promise((resolve, reject) => {
-      const out = [];
-      fs.createReadStream(csvFile)
+    // 6) load & parse your CSV of updated MPs
+    const csvPath = path.join(
+      process.cwd(), 'data','csv','mp_list.csv'
+    );
+    const mpList = await new Promise((resolve, reject) => {
+      const rows = [];
+      fs.createReadStream(csvPath)
         .pipe(csv())
         .on('data', row => {
           if (row.riding_name && row.mp_name && row.mp_email) {
-            out.push({
+            rows.push({
               riding:   row.riding_name.trim().toLowerCase(),
               mp_name:  row.mp_name.trim(),
-              mp_email: row.mp_email.trim(),
+              mp_email: row.mp_email.trim()
             });
           }
         })
-        .on('end', () => resolve(out))
+        .on('end', () => resolve(rows))
         .on('error', reject);
     });
 
-    // ── 7) Find your MP or fall back to “Unknown” ───────────────────────────
-    const match    = mpList.find(r => r.riding === ridingKey);
+    // 7) match or fallback
+    const match    = mpList.find(r => r.riding === ridingName);
     const mp_name  = match ? match.mp_name  : 'Unknown MP';
     const mp_email = match ? match.mp_email : '';
 
-    // ── 8) Return the response ──────────────────────────────────────────────
-    return res.status(200).json({ riding_name: ridingName, mp_name, mp_email });
-  }
-  catch (err) {
+    // 8) done
+    return res.status(200).json({
+      riding_name: match ? match.riding : ridingName,
+      mp_name,
+      mp_email
+    });
+
+  } catch (err) {
     console.error('get-mp error:', err);
     return res.status(500).json({ error: err.message });
   }
