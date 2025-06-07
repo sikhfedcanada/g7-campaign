@@ -60,9 +60,12 @@ export default async function handler(req, res) {
       fs.createReadStream(csvPath)
         .pipe(csv())
         .on('data', row => {
+          console.log('CSV row:', row);
           if (row.riding_name && row.mp_name && row.mp_email) {
+            const csvRiding = normalize(row.riding_name);
+            console.log('Normalized CSV riding:', csvRiding, '| MP:', row.mp_name);
             rows.push({
-              riding:   normalize(row.riding_name),
+              riding:   csvRiding,
               mp_name:  row.mp_name.trim(),
               mp_email: row.mp_email.trim()
             });
@@ -79,7 +82,13 @@ export default async function handler(req, res) {
     console.log('CSV entries:', mpList.map(r => r.riding));
 
     // 7) match or fallback
-    const match    = mpList.find(r => r.riding === ridingName);
+    const closeMatches = mpList.filter(r =>
+      r.riding.includes(ridingName) || ridingName.includes(r.riding)
+    );
+    console.log('Possible close matches:', closeMatches);
+    const match = mpList.find(r => r.riding === ridingName);
+    console.log('Looking for match:', ridingName);
+    console.log('Found match:', match);
     const mp_name  = match ? match.mp_name  : 'Unknown MP';
     const mp_email = match ? match.mp_email : '';
 
