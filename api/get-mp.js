@@ -66,14 +66,21 @@ export default async function handler(req, res) {
       fs.createReadStream(csvPath)
         .pipe(csv())
         .on('data', row => {
-          console.log('CSV row:', row);
-          if (row.riding && row.mp_name && row.mp_email) {
-            const csvRiding = normalize(row.riding);
-            console.log('Normalized CSV riding:', csvRiding, '| MP:', row.mp_name);
+          // Normalize BOM in header keys
+          const cleaned = {};
+          Object.keys(row).forEach(k => {
+            const newKey = k.replace(/^\uFEFF/, '');
+            cleaned[newKey] = row[k];
+          });
+
+          console.log('CSV row:', cleaned);
+          if (cleaned.riding && cleaned.mp_name && cleaned.mp_email) {
+            const csvRiding = normalize(cleaned.riding);
+            console.log('Normalized CSV riding:', csvRiding, '| MP:', cleaned.mp_name);
             rows.push({
               riding:   csvRiding,
-              mp_name:  row.mp_name.trim(),
-              mp_email: row.mp_email.trim()
+              mp_name:  cleaned.mp_name.trim(),
+              mp_email: cleaned.mp_email.trim()
             });
           }
         })
