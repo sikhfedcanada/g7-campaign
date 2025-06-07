@@ -48,7 +48,8 @@ export default async function handler(req, res) {
     if (!feat) {
       return res.status(404).json({ error: 'No riding found at that location.' });
     }
-    const ridingName = feat.properties.ED_NAMEE.trim().toLowerCase();
+    const normalize = str => str.toLowerCase().replace(/[\u2013\u2014]/g, '-').trim();
+    const ridingName = normalize(feat.properties.ED_NAME || feat.properties.ED_NAMEE || '');
 
     // 6) load & parse your CSV of updated MPs
     const csvPath = path.join(
@@ -61,7 +62,7 @@ export default async function handler(req, res) {
         .on('data', row => {
           if (row.riding_name && row.mp_name && row.mp_email) {
             rows.push({
-              riding:   row.riding_name.trim().toLowerCase(),
+              riding:   normalize(row.riding_name),
               mp_name:  row.mp_name.trim(),
               mp_email: row.mp_email.trim()
             });
@@ -70,6 +71,12 @@ export default async function handler(req, res) {
         .on('end', () => resolve(rows))
         .on('error', reject);
     });
+
+    // Temporary debugging logs
+    console.log('Point:', pt.geometry.coordinates);
+    console.log('Matched feature:', feat?.properties);
+    console.log('Normalized riding name:', ridingName);
+    console.log('CSV entries:', mpList.map(r => r.riding));
 
     // 7) match or fallback
     const match    = mpList.find(r => r.riding === ridingName);
