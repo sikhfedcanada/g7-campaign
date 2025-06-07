@@ -73,10 +73,8 @@ export default async function handler(req, res) {
             cleaned[newKey] = row[k];
           });
 
-          console.log('CSV row:', cleaned);
           if (cleaned.riding && cleaned.mp_name && cleaned.mp_email) {
             const csvRiding = normalize(cleaned.riding);
-            console.log('Normalized CSV riding:', csvRiding, '| MP:', cleaned.mp_name);
             rows.push({
               riding:   csvRiding,
               mp_name:  cleaned.mp_name.trim(),
@@ -88,30 +86,18 @@ export default async function handler(req, res) {
         .on('error', reject);
     });
 
-    // Temporary debugging logs
-    console.log('Point:', pt.geometry.coordinates);
-    console.log('Matched feature:', feat?.properties);
-    console.log('Normalized riding name:', ridingName);
-    console.log('CSV entries:', mpList.map(r => r.riding));
 
     // 7) match or fallback
     const closeMatches = mpList.filter(r =>
       r.riding.includes(ridingName) || ridingName.includes(r.riding)
     );
-    console.log('Possible close matches:', closeMatches);
-    const match = mpList.find(r => {
-      if (r.riding === ridingName) {
-        console.log('✅ Exact match:', r.riding, '===', ridingName);
-        return true;
-      } else {
-        console.log('❌ No match:', r.riding, '!==', ridingName);
-        return false;
-      }
-    });
-    console.log('Looking for match:', ridingName);
-    console.log('Found match:', match);
+    const match = mpList.find(r => r.riding === ridingName);
     const mp_name  = match ? match.mp_name  : 'Unknown MP';
     const mp_email = match ? match.mp_email : '';
+    // Concise log for successful match
+    if (match) {
+      console.log(`✅ MP found for ${ridingName}: ${mp_name}`);
+    }
 
     // 8) done
     return res.status(200).json({
