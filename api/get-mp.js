@@ -1,6 +1,6 @@
-import fs from 'fs';
+import fs   from 'fs';
 import path from 'path';
-import csv from 'csv-parser';
+import csv  from 'csv-parser';
 
 export default async function handler(req, res) {
   // ── 1) CORS ──────────────────────────────────────────────────────────────
@@ -9,38 +9,32 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // ── 2) Sanitize & validate postal ────────────────────────────────────────
-  const raw   = (req.query.postal||'').toString().trim().toUpperCase();
-  const postal = raw.replace(/\s+/g,'');
+  // ── 2) Validate postal code ──────────────────────────────────────────────
+  const raw    = (req.query.postal || '').toString().trim().toUpperCase();
+  const postal = raw.replace(/\s+/g, '');
   if (!/^[A-Z]\d[A-Z]\d[A-Z]\d$/.test(postal)) {
     return res.status(400).json({ error: 'Invalid postal code format' });
   }
 
   try {
-    // ── 3) Hit OpenNorth with the “federal‐electoral‐districts” set ─────────
-    const url = 
-      `https://represent.opennorth.ca/representatives/postcodes/` +
-      `${encodeURIComponent(postal)}/?sets=federal-electoral-districts`;
-    console.log('▶️ OpenNorth URL:', url);
-
+    // ── 3) Fetch via the /postcodes endpoint with the FED boundary set ─────
+    const url = `https://represent.opennorth.ca/postcodes/${postal}/?sets=federal-electoral-districts`;
+    console.log('Fetching OpenNorth:', url);
     const onRes = await fetch(url);
-    if (!onRes.ok) throw new Error(`OpenNorth returned HTTP ${onRes.status}`);
+    if (!onRes.ok) throw new Error(`OpenNorth returned ${onRes.status}`);
     const onData = await onRes.json();
-    console.log('📥 OpenNorth payload:', JSON.stringify(onData,null,2));
 
-    // ── 4) Find the MP in whichever array they put it in ─────────────────────
-    const reps = 
-      onData.representatives_centroid ||
-      onData.representatives_concordance ||
-      [];
-    const mp = reps.find(r => r.elected_office === 'MP');
-
-    if (!mp || !mp.electoral_district?.name) {
-      console.warn('⚠️ no mp or district:', reps);
+    // ── 4) Pull out the MP from representatives_centroid ────────────────────
+    const reps = Array.isArray(onData.representatives_centroid)
+      ? onData.representatives_centroid
+      : [];
+    const rep = reps.find(r => r.elected_office === 'MP');
+    if (!rep || !rep.electoral_district?.name) {
+      console.warn('No MP entry in response:', reps);
       return res.status(404).json({ error: 'No MP found for that postal code' });
     }
 
-    const ridingName = mp.electoral_district.name.trim();
+    const ridingName = rep.electoral_district.name.trim();
     const ridingKey  = ridingName.toLowerCase();
 
     // ── 5) Load your CSV of up-to-date MPs ───────────────────────────────────
@@ -62,12 +56,12 @@ export default async function handler(req, res) {
         .on('error', reject);
     });
 
-    // ── 6) Match or fall back to OpenNorth’s data ────────────────────────────
-    const found = mpList.find(r => r.riding === ridingKey);
-    const mp_name  = found ? found.mp_name  : mp.name;
-    const mp_email = found ? found.mp_email : (mp.email||'');
+    // ── 6) Match riding → CSV, fallback to OpenNorth’s rep data ────────────
+    const found    = mpList.find(r => r.riding === ridingKey);
+    const mp_name  = found ? found.mp_name  : rep.name;
+    const mp_email = found ? found.mp_email : (rep.email || '');
 
-    // ── 7) Send the JSON ────────────────────────────────────────────────────
+    // ── 7) Return the combined result ──────────────────────────────────────
     return res.status(200).json({
       riding_name: ridingName,
       mp_name,
@@ -75,7 +69,7 @@ export default async function handler(req, res) {
     });
 
   } catch (err) {
-    console.error('🔥 get-mp error:', err);
+    console.error('get-mp error:', err);
     return res.status(500).json({ error: err.message });
   }
 }
